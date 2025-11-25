@@ -1,0 +1,30 @@
+- name: Create Traefik directory
+  file:
+    path: /opt/traefik
+    state: directory
+
+- name: Deploy traefik.yml
+  template:
+    src: traefik.yml.j2
+    dest: /opt/traefik/traefik.yml
+
+- name: Deploy dynamic.yml
+  template:
+    src: dynamic.yml.j2
+    dest: /opt/traefik/dynamic.yml
+
+- name: Deploy docker-compose.yml
+  template:
+    src: docker-compose-traefik.yml.j2
+    dest: /opt/traefik/docker-compose.yml
+
+- name: Ensure acme.json exists
+  file:
+    path: "{{ traefik_acme_storage }}"
+    state: touch
+    mode: '0600'
+
+- name: Start Traefik with Docker Compose
+  shell: docker compose up -d
+  args:
+    chdir: /opt/traefik

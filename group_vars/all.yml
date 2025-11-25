@@ -1,0 +1,13 @@
+# Global variables
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+# Traefik variables
+traefik_email: rpearsall1982@gmail.com
+traefik_acme_storage: /etc/traefik/acme.json
+traefik_env_file: /etc/traefik/cloudflare.env
+traefik_network: proxy
