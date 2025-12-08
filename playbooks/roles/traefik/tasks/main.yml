@@ -52,6 +52,15 @@
     group: root
     mode: "0600"
 
+- name: Deploy Cloudflare env file
+  copy:
+    dest: "{{ traefik_env_file }}"
+    content: |
+      CF_API_TOKEN={{ vault_cloudflare_api_token }}
+    owner: root
+    group: root
+    mode: "0600"
+
 - name: Start Traefik with Docker Compose
   command: docker compose up -d
   args:
