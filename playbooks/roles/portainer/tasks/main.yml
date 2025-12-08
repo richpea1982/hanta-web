@@ -1,3 +1,4 @@
+---
 - name: Ensure Portainer data directory exists
   file:
     path: "{{ portainer_data_dir | default('/opt/portainer') }}"
@@ -20,6 +21,6 @@
       - name: "{{ traefik_network }}"
     labels:
       traefik.enable: "true"
-      traefik.http.routers.portainer.rule: "Host(`portainer.{{ domain }}`)"
+      traefik.http.routers.portainer.rule: "Host(`portainer.{{ traefik_domain }}`)"
       traefik.http.routers.portainer.entrypoints: "websecure"
       traefik.http.routers.portainer.tls.certresolver: "cloudflare"
