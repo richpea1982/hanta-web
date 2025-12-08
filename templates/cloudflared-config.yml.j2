@@ -1,0 +1,9 @@
+tunnel: {{ cloudflared_tunnel_name }}
+credentials-file: {{ (cloudflared_config_dir | default('/etc/cloudflared')) }}/{{ cloudflared_tunnel_name }}.json
+
+ingress:
+{% for item in cloudflared_ingress | default([]) %}
+  - hostname: {{ item.hostname }}
+    service: {{ item.service }}
+{% endfor %}
+  - service: http_status:404

@@ -1,0 +1,21 @@
+- name: Bootstrap full web stack
+  hosts: all
+  become: true
+  vars_files:
+    - ../vault/secrets.yml
+  tasks:
+    - name: Run Docker role
+      import_role:
+        name: docker
+
+    - name: Run Traefik role
+      import_role:
+        name: traefik
+
+    - name: Run Cloudflared role
+      import_role:
+        name: cloudflared
+
+    - name: Run Portainer role
+      import_role:
+        name: portainer
