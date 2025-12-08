@@ -1,56 +1,33 @@
-- name: Install prerequisites
-  apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - gnupg
-    state: present
-    update_cache: yes
-
-- name: Add Cloudflare GPG key
-  ansible.builtin.apt_key:
-    url: https://pkg.cloudflare.com/cloudflare-main.gpg
-    state: present
-
-- name: Add Cloudflare apt repository (Debian 13 Trixie)
-  ansible.builtin.apt_repository:
-    repo: "deb https://pkg.cloudflare.com/ trixie main"
-    state: present
-    filename: cloudflare
-
-- name: Install cloudflared
-  apt:
-    name: cloudflared
-    state: present
-    update_cache: yes
-
-- name: Ensure cloudflared config directory
+- name: Ensure cloudflared directory exists
   file:
-    path: "{{ cloudflared_config_dir | default('/etc/cloudflared') }}"
+    path: /etc/cloudflared
     state: directory
-    owner: root
-    group: root
-    mode: "0755"
+    mode: '0755'
 
-- name: Write tunnel credentials from vault
-  copy:
-    dest: "{{ (cloudflared_config_dir | default('/etc/cloudflared')) }}/{{ cloudflared_tunnel_name }}.json"
-    content: "{{ vault_cloudflare_tunnel_credentials_json }}"
-    owner: root
-    group: root
-    mode: "0600"
-
-- name: Render cloudflared config.yml
+# Option A: Token-based (dashboard)
+- name: Configure cloudflared systemd service with token
   template:
-    src: cloudflared-config.yml.j2
-    dest: "{{ (cloudflared_config_dir | default('/etc/cloudflared')) }}/config.yml"
-    owner: root
-    group: root
-    mode: "0644"
+    src: cloudflared-token.service.j2
+    dest: /etc/systemd/system/cloudflared.service
+  when: vault_cloudflare_tunnel_token is defined
 
-- name: Enable and start cloudflared service
+# Option B: JSON-based (CLI)
+- name: Copy tunnel credentials JSON
+  copy:
+    content: "{{ vault_cloudflare_tunnel_credentials_json }}"
+    dest: /etc/cloudflared/{{ vault_cloudflare_tunnel_name }}.json
+    mode: '0600'
+  when: vault_cloudflare_tunnel_credentials_json is defined
+
+- name: Configure cloudflared systemd service with JSON
+  template:
+    src: cloudflared-json.service.j2
+    dest: /etc/systemd/system/cloudflared.service
+  when: vault_cloudflare_tunnel_credentials_json is defined
+
+- name: Reload systemd and enable cloudflared
   systemd:
+    daemon_reload: true
     name: cloudflared
     enabled: true
     state: started
