@@ -56,7 +56,7 @@
   copy:
     dest: "{{ traefik_env_file }}"
     content: |
-      CLOUDFLARE_API_TOKEN={{ vault_cloudflare_api_token }}
+      CLOUDFLARE_DNS_API_TOKEN={{ vault_cloudflare_api_token }}
     owner: root
     group: root
     mode: "0600"
