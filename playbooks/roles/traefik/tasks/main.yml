@@ -1,3 +1,4 @@
+---
 - name: Ensure Traefik network exists
   community.docker.docker_network:
     name: "{{ traefik_network }}"
@@ -34,6 +35,14 @@
     owner: root
     group: root
     mode: "0644"
+
+- name: Ensure Traefik acme directory exists
+  file:
+    path: /etc/traefik
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
 
 - name: Ensure acme.json exists
   file:
