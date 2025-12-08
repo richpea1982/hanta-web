@@ -4,26 +4,10 @@
     state: directory
     mode: '0755'
 
-# Option A: Token-based (dashboard)
-- name: Configure cloudflared systemd service with token
+- name: Configure cloudflared systemd service (token method)
   template:
     src: cloudflared-token.service.j2
     dest: /etc/systemd/system/cloudflared.service
-  when: vault_cloudflare_tunnel_token is defined
-
-# Option B: JSON-based (CLI)
-- name: Copy tunnel credentials JSON
-  copy:
-    content: "{{ vault_cloudflare_tunnel_credentials_json }}"
-    dest: /etc/cloudflared/{{ vault_cloudflare_tunnel_name }}.json
-    mode: '0600'
-  when: vault_cloudflare_tunnel_credentials_json is defined
-
-- name: Configure cloudflared systemd service with JSON
-  template:
-    src: cloudflared-json.service.j2
-    dest: /etc/systemd/system/cloudflared.service
-  when: vault_cloudflare_tunnel_credentials_json is defined
 
 - name: Reload systemd and enable cloudflared
   systemd:
