@@ -1,7 +1,12 @@
+# playbooks/test.yml
 - hosts: localhost
   gather_facts: false
-  vars_files:
-    - inventories/group_vars/vault.yml
   tasks:
-    - debug:
+    - name: Load vault variables
+      include_vars:
+        file: inventories/group_vars/vault.yml
+
+    - name: Debug vault_cloudflare_api_token
+      debug:
         var: vault_cloudflare_api_token
+
