@@ -1,11 +1,4 @@
-# playbooks/roles/cloudflared/tasks/main.yml
-
-- name: Ensure Cloudflare keyring directory exists
-  file:
-    path: /usr/share/keyrings
-    state: directory
-    mode: '0755'
-
+---
 - name: Add Cloudflare GPG key
   get_url:
     url: https://pkg.cloudflare.com/cloudflare-main.gpg
@@ -25,38 +18,27 @@
     state: present
     update_cache: yes
 
-- name: Ensure /etc/cloudflared exists
+- name: Create /etc/cloudflared directory
   file:
     path: /etc/cloudflared
     state: directory
     mode: '0755'
 
-- name: Remove old cert.pem and credentials file if they exist (clean slate)
-  file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /etc/cloudflared/cert.pem
-    - /etc/cloudflared/{{ cloudflared_tunnel_id }}.json
-
-- name: Deploy minimal config.yml (token mode – no credentials-file needed)
-  copy:
+- name: Deploy config.yml
+  template:
+    src: cloudflared-config.yml.j2
     dest: /etc/cloudflared/config.yml
-    content: |
-      tunnel: {{ cloudflared_tunnel_id }}
-      credentials-file: /dev/null   # dummy – not used with token
-      token: {{ vault_cloudflared_tunnel_token }}
+    mode: '0644'
+  notify: restart cloudflared
 
-      ingress:
-      {% for item in cloudflared_ingress %}
-        - hostname: {{ item.hostname }}
-          service: {{ item.service }}
-      {% endfor %}
-        - service: http_status:404
+- name: Deploy tunnel credentials file
+  copy:
+    content: "{{ vault_cloudflared_credentials | to_nice_json }}"
+    dest: "/etc/cloudflared/{{ cloudflared_tunnel_id }}.json"
     mode: '0600'
   notify: restart cloudflared
 
-- name: Deploy systemd service unit (uses token from config.yml)
+- name: Deploy correct systemd unit (no --config flag!)
   template:
     src: cloudflared.service.j2
     dest: /etc/systemd/system/cloudflared.service

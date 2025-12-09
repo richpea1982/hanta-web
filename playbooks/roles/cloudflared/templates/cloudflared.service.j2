@@ -7,10 +7,15 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=root
+# IMPORTANT: no --config flag here at all!
 ExecStart=/usr/bin/cloudflared tunnel run {{ cloudflared_tunnel_id }}
 Restart=always
 RestartSec=5
-AmbientCapabilities=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_NET_RAW
+
+# Optional but nice
+TimeoutStartSec=0
+Environment="TUNNEL_TRANSPORT_PROTOCOL=auto"
 
 [Install]
 WantedBy=multi-user.target
