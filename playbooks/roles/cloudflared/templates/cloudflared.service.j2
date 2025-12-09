@@ -1,13 +1,15 @@
+# playbooks/roles/cloudflared/templates/cloudflared.service.j2
 [Unit]
 Description=Cloudflare Tunnel
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/cloudflared tunnel run {{ cloudflared_tunnel_id }} --config {{ cloudflared_config_dir }}/config.yml
-Restart=always
 User=root
+ExecStart=/usr/local/bin/cloudflared tunnel --config /etc/cloudflared/config.yml run
+Restart=always
+RestartSec=5
+AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_NET_RAW
 
 [Install]
 WantedBy=multi-user.target
-

@@ -4,78 +4,70 @@
   file:
     path: /usr/share/keyrings
     state: directory
-    owner: root
-    group: root
     mode: '0755'
 
 - name: Add Cloudflare GPG key
-  ansible.builtin.get_url:
+  get_url:
     url: https://pkg.cloudflare.com/cloudflare-main.gpg
     dest: /usr/share/keyrings/cloudflare-main.gpg
     mode: '0644'
 
-- name: Add Cloudflare apt repository (stable channel)
-  ansible.builtin.apt_repository:
+- name: Add Cloudflare apt repository
+  apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main"
     state: present
     filename: cloudflared
-
-# Optional: nightly channel
-# - name: Add Cloudflare apt repository (nightly channel)
-#   ansible.builtin.apt_repository:
-#     repo: "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://next.pkg.cloudflare.com/cloudflared any main"
-#     state: present
-#     filename: cloudflared-nightly
+    update_cache: yes
 
 - name: Install cloudflared
-  ansible.builtin.apt:
+  apt:
     name: cloudflared
     state: present
     update_cache: yes
 
-- name: Ensure cloudflared config directory exists
+- name: Ensure /etc/cloudflared exists
   file:
     path: /etc/cloudflared
     state: directory
-    owner: root
-    group: root
     mode: '0755'
 
-- name: Deploy cloudflared config
-  template:
-    src: cloudflared-config.yml.j2
-    dest: /etc/cloudflared/config.yml
-    owner: root
-    group: root
-    mode: '0644'
+- name: Remove old cert.pem and credentials file if they exist (clean slate)
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/cloudflared/cert.pem
+    - /etc/cloudflared/{{ cloudflared_tunnel_id }}.json
 
-- name: Debug vault_cloudflared_credentials
-  debug:
-    var: vault_cloudflared_credentials
-
-- name: Debug tunnel id
-  debug:
-    var: cloudflared_tunnel_id
-
-- name: Deploy cloudflared tunnel credentials
+- name: Deploy minimal config.yml (token mode – no credentials-file needed)
   copy:
-    dest: "{{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json"
-    content: "{{ vault_cloudflared_credentials }}"
-    owner: root
-    group: root
-    mode: '0600'
+    dest: /etc/cloudflared/config.yml
+    content: |
+      tunnel: {{ cloudflared_tunnel_id }}
+      credentials-file: /dev/null   # dummy – not used with token
+      token: {{ vault_cloudflared_tunnel_token }}
 
-- name: Configure cloudflared systemd service (credentials mode)
+      ingress:
+      {% for item in cloudflared_ingress %}
+        - hostname: {{ item.hostname }}
+          service: {{ item.service }}
+      {% endfor %}
+        - service: http_status:404
+    mode: '0600'
+  notify: restart cloudflared
+
+- name: Deploy systemd service unit (uses token from config.yml)
   template:
     src: cloudflared.service.j2
     dest: /etc/systemd/system/cloudflared.service
-    owner: root
-    group: root
     mode: '0644'
+  notify:
+    - daemon-reload
+    - restart cloudflared
 
-- name: Reload systemd and enable cloudflared
+- name: Enable and start cloudflared
   systemd:
-    daemon_reload: true
     name: cloudflared
     enabled: true
     state: started
+    daemon_reload: true
