@@ -4,7 +4,7 @@
   tasks:
     - name: Load vault variables
       include_vars:
-        file: inventories/group_vars/vault.yml
+        file: ../inventories/group_vars/vault.yml
 
     - name: Debug vault_cloudflare_api_token
       debug:
