@@ -1,4 +1,20 @@
 ---
+- name: Disable IPv6 system-wide
+  sysctl:
+    name: net.ipv6.conf.all.disable_ipv6
+    value: 1
+    state: present
+    sysctl_set: yes
+    reload: yes
+
+- name: Disable IPv6 on default interface
+  sysctl:
+    name: net.ipv6.conf.default.disable_ipv6
+    value: 1
+    state: present
+    sysctl_set: yes
+    reload: yes
+
 - name: Add Cloudflare GPG key
   get_url:
     url: https://pkg.cloudflare.com/cloudflare-main.gpg
