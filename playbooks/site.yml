@@ -2,7 +2,7 @@
   hosts: all
   become: true
   vars_files:
-    - ../inventories/group_vars/vault.yml   # only vault needs explicit loading
+    - inventories/group_vars/vault.yml   # only vault needs explicit loading
   tasks:
     - name: Run Docker role
       import_role:
