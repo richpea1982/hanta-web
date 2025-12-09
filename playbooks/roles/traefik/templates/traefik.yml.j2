@@ -17,3 +17,14 @@ api:
 
 log:
   level: DEBUG
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: {{ traefik_email }}
+      storage: {{ traefik_acme_storage }}
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"

@@ -5,9 +5,3 @@ http:
       service: "api@internal"
       entryPoints:
         - websecure
-
-    portainer:
-      rule: "Host(`portainer.{{ traefik_domain }}`)"
-      entryPoints:
-        - websecure
-      service: portainer
