@@ -16,6 +16,14 @@
     group: root
     mode: '0644'
 
+- name: Debug vault_cloudflared_credentials
+  debug:
+    var: vault_cloudflared_credentials
+
+- name: Debug tunnel id
+  debug:
+    var: cloudflared_tunnel_id
+
 - name: Deploy cloudflared tunnel credentials from vault
   copy:
     dest: /etc/cloudflared/{{ cloudflared_tunnel_id }}.json
