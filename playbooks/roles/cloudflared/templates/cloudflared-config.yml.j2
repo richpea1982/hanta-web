@@ -1,4 +1,4 @@
-tunnel: {{ cloudflared_tunnel_name }}
+tunnel: {{ cloudflared_tunnel_id }}
 credentials-file: {{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json
 
 ingress:
@@ -7,4 +7,3 @@ ingress:
     service: {{ item['service'] }}
 {% endfor %}
   - service: http_status:404
-
