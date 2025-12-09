@@ -1,9 +1,8 @@
+# /etc/cloudflared/config.yml (rendered)
 tunnel: {{ cloudflared_tunnel_id }}
-credentials-file: {{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json
+credentials-file: /etc/cloudflared/{{ cloudflared_tunnel_id }}.json
 
 ingress:
-{% for item in cloudflared_ingress | default([]) %}
-  - hostname: {{ item['hostname'] }}
-    service: {{ item['service'] }}
-{% endfor %}
+  - hostname: portainer.pearsalls.online
+    service: http://localhost:9000
   - service: http_status:404
