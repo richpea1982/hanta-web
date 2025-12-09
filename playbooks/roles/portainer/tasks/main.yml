@@ -19,7 +19,6 @@
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-    command: --admin-password-hash "{{ vault_portainer_admin_hash | default(omit) }}"
     labels:
       traefik.enable: "true"
       traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
