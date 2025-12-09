@@ -5,14 +5,6 @@ services:
     restart: always
     env_file:
       - {{ traefik_env_file }}
-    command:
-      - --providers.docker=true
-      - --providers.file.filename=/dynamic.yml
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.cloudflare.acme.email={{ traefik_email }}
-      - --certificatesresolvers.cloudflare.acme.storage={{ traefik_acme_storage }}
-      - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
     ports:
       - "80:80"
       - "443:443"

@@ -1,19 +1,35 @@
+# playbooks/roles/cloudflared/tasks/main.yml
+
 - name: Ensure cloudflared directory exists
   file:
     path: /etc/cloudflared
     state: directory
+    owner: root
+    group: root
     mode: '0755'
 
 - name: Deploy cloudflared config
   template:
     src: cloudflared-config.yml.j2
     dest: /etc/cloudflared/config.yml
+    owner: root
+    group: root
     mode: '0644'
+
+- name: Deploy cloudflared tunnel credentials from vault
+  copy:
+    dest: /etc/cloudflared/f77ee1ff-0c1d-4883-a922-4800456af1c5.json
+    content: "{{ vault_cloudflared_credentials }}"
+    owner: root
+    group: root
+    mode: '0600'
 
 - name: Configure cloudflared systemd service (token method)
   template:
     src: cloudflared-token.service.j2
     dest: /etc/systemd/system/cloudflared.service
+    owner: root
+    group: root
     mode: '0644'
 
 - name: Reload systemd and enable cloudflared
