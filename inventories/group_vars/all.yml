@@ -20,3 +20,6 @@ cloudflared_config_dir: /etc/cloudflared
 cloudflared_ingress:
   - hostname: portainer.pearsalls.online
     service: http://localhost:9000
+
+# Include vault variables
+- include_vars: vault.yml
