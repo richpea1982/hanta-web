@@ -22,4 +22,4 @@ cloudflared_ingress:
     service: http://localhost:9000
 
 # Include vault variables
-- include_vars: vault.yml
+  - include_vars: vault.yml
