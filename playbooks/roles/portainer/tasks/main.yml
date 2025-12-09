@@ -16,8 +16,6 @@
     labels:
       traefik.enable: "true"
 
-labels:
-  traefik.enable: "true"
       # HTTPS router
       traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
       traefik.http.routers.portainer.entrypoints: "websecure"
