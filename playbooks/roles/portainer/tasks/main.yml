@@ -25,4 +25,4 @@
       # HTTP router with redirect middleware
       traefik.http.routers.portainer-http.rule: "Host(`portainer.pearsalls.online`)"
       traefik.http.routers.portainer-http.entrypoints: "web"
-      traefik.http.routers.portainer-http.middlewares: "redirect-to-https"
+      traefik.http.routers.portainer-http.middlewares: "redirect-to-https@file"
