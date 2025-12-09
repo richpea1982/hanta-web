@@ -1,10 +1,3 @@
-# playbooks/roles/portainer/tasks/main.yml
-
-- name: Ensure Portainer network exists
-  docker_network:
-    name: proxy
-    state: present
-
 - name: Deploy Portainer container
   community.docker.docker_container:
     name: portainer
@@ -29,8 +22,3 @@
       traefik.http.routers.portainer.entrypoints: "websecure"
       traefik.http.routers.portainer.tls.certresolver: "myresolver"
       traefik.http.services.portainer.loadbalancer.server.port: "9000"
-    # optional: if you also want http→https redirect
-    #   traefik.http.routers.portainer-http.rule: "Host(`portainer.pearsalls.online`)"
-    #   traefik.http.routers.portainer-http.entrypoints: "web"
-    #   traefik.http.routers.portainer-http.middlewares: "redirect-to-https"
-  register: portainer_container
