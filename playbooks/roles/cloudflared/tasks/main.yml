@@ -24,9 +24,9 @@
   debug:
     var: cloudflared_tunnel_id
 
-- name: Deploy cloudflared tunnel credentials from vault
+- name: Deploy cloudflared tunnel credentials
   copy:
-    dest: /etc/cloudflared/{{ cloudflared_tunnel_id }}.json
+    dest: "{{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json"
     content: "{{ vault_cloudflared_credentials }}"
     owner: root
     group: root

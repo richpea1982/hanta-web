@@ -1,5 +1,5 @@
 tunnel: {{ cloudflared_tunnel_name }}
-credentials-file: {{ (cloudflared_config_dir | default('/etc/cloudflared')) }}/{{ cloudflared_tunnel_id }}.json
+credentials-file: {{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json
 
 ingress:
 {% for item in cloudflared_ingress | default([]) %}
