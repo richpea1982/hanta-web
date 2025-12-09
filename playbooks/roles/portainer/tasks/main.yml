@@ -14,7 +14,10 @@
     networks:
       - name: "{{ traefik_network }}"
     labels:
-      traefik.enable: "true"
-      traefik.http.routers.portainer.rule: "Host(`portainer.{{ traefik_domain }}`)"
-      traefik.http.routers.portainer.entrypoints: websecure
-      traefik.http.services.portainer.loadbalancer.server.port: "9000"
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.pearsalls.online`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls.certresolver=cloudflare"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+
+     
