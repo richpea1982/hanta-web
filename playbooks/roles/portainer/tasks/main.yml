@@ -1,23 +1,33 @@
 # playbooks/roles/portainer/tasks/main.yml
+- name: Ensure Portainer network exists
+  docker_network:
+    name: proxy
+    state: present
 
 - name: Deploy Portainer container
   community.docker.docker_container:
     name: portainer
     image: portainer/portainer-ce:latest
-    restart_policy: always
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: proxy
     ports:
-      - "9000:9000"   # Local HTTP port
-      - "9443:9443"   # Local HTTPS port (optional for direct access)
+      - "9000:9000"
+      - "8000:8000"   # for Edge agents (optional)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-    networks:
-      - name: "{{ traefik_network }}"
+    command: --admin-password-hash "{{ vault_portainer_admin_hash | default(omit) }}"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`portainer.pearsalls.online`)"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.routers.portainer.tls.certresolver=cloudflare"
-      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-
-     
+      traefik.enable: "true"
+      traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
+      traefik.http.routers.portainer.entrypoints: "websecure"
+      traefik.http.routers.portainer.tls.certresolver: "myresolver"
+      traefik.http.services.portainer.loadbalancer.server.port: "9000"
+    # optional: if you also want http→https redirect
+    #   traefik.http.routers.portainer-http.rule: "Host(`portainer.pearsalls.online`)"
+    #   traefik.http.routers.portainer-http.entrypoints: "web"
+    #   traefik.http.routers.portainer-http.middlewares: "redirect-to-https"
+  register: portainer_container
