@@ -1,5 +1,31 @@
 # playbooks/roles/cloudflared/tasks/main.yml
 
+- name: Ensure apt keyring directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Add Cloudflare GPG key
+  ansible.builtin.get_url:
+    url: https://pkg.cloudflare.com/cloudflare-main.gpg
+    dest: /etc/apt/keyrings/cloudflare-main.gpg
+    mode: '0644'
+
+- name: Add Cloudflare apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared {{ ansible_distribution_release }} main"
+    state: present
+    filename: cloudflared
+
+- name: Install cloudflared
+  ansible.builtin.apt:
+    name: cloudflared
+    state: present
+    update_cache: yes
+
 - name: Ensure cloudflared directory exists
   file:
     path: /etc/cloudflared
