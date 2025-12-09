@@ -1,24 +1,23 @@
-- name: Deploy Portainer container
-  community.docker.docker_container:
-    name: portainer
-    image: portainer/portainer-ce:latest
-    pull: true
-    state: started
-    restart_policy: unless-stopped
-    networks:
-      - name: proxy
-    ports:
-      - "9000:9000"
-      - "8000:8000"   # for Edge agents (optional)
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    env:
-      # Optional: pre-seed admin password via Ansible vault
-      # ADMIN_PASSWORD: "{{ portainer_admin_password | default(omit) }}"
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
-      traefik.http.routers.portainer.entrypoints: "websecure"
-      traefik.http.routers.portainer.tls.certresolver: "myresolver"
-      traefik.http.services.portainer.loadbalancer.server.port: "9000"
+community.docker.docker_container:
+  name: portainer
+  image: portainer/portainer-ce:latest
+  pull: true
+  state: started
+  restart_policy: unless-stopped
+  networks:
+    - name: proxy
+  ports:
+    - "9000:9000"
+    - "8000:8000"   # optional
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - portainer_data:/data
+  labels:
+    traefik.enable: "true"
+    traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
+    traefik.http.routers.portainer.entrypoints: "websecure"
+    traefik.http.routers.portainer.tls.certresolver: "myresolver"
+    traefik.http.services.portainer.loadbalancer.server.port: "9000"
+    traefik.http.routers.portainer-http.rule: "Host(`portainer.pearsalls.online`)"
+    traefik.http.routers.portainer-http.entrypoints: "web"
+    traefik.http.routers.portainer-http.middlewares: "redirect-to-https"

@@ -4,5 +4,5 @@ credentials-file: /etc/cloudflared/{{ cloudflared_tunnel_id }}.json
 
 ingress:
   - hostname: portainer.pearsalls.online
-    service: http://127.0.0.1:9000
+    service: http://127.0.0.1:80
   - service: http_status:404
