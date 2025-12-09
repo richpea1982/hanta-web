@@ -1,4 +1,5 @@
 # playbooks/roles/portainer/tasks/main.yml
+
 - name: Ensure Portainer network exists
   docker_network:
     name: proxy
@@ -19,6 +20,9 @@
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    env:
+      # Optional: pre-seed admin password via Ansible vault
+      # ADMIN_PASSWORD: "{{ portainer_admin_password | default(omit) }}"
     labels:
       traefik.enable: "true"
       traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
