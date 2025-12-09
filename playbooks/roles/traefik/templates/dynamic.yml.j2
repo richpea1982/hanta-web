@@ -5,3 +5,9 @@ http:
       service: "api@internal"
       entryPoints:
         - websecure
+
+http:
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
