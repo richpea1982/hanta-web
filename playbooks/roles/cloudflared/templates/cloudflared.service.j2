@@ -4,9 +4,10 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/cloudflared tunnel run {{ cloudflared_tunnel_name }} --config {{ cloudflared_config_dir }}/config.yml
+ExecStart=/usr/bin/cloudflared tunnel run {{ cloudflared_tunnel_name }} --config {{ cloudflared_config_dir }}/config.yml
 Restart=always
 User=root
 
 [Install]
 WantedBy=multi-user.target
+
