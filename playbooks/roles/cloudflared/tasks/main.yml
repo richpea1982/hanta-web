@@ -31,12 +31,13 @@
     mode: '0644'
   notify: restart cloudflared
 
-- name: Deploy tunnel credentials file
+- name: Deploy cloudflared tunnel credentials
   copy:
+    dest: "{{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json"
     content: "{{ vault_cloudflared_credentials | to_nice_json }}"
-    dest: "/etc/cloudflared/{{ cloudflared_tunnel_id }}.json"
+    owner: root
+    group: root
     mode: '0600'
-  notify: restart cloudflared
 
 - name: Deploy correct systemd unit (no --config flag!)
   template:
