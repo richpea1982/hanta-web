@@ -5,8 +5,8 @@
     pull: true
     state: started
     restart_policy: unless-stopped
-    recreate: true        # <-- force container recreation
-    force_kill: true
+    recreate: true          # force container recreation
+    force_kill: true        # kill old container if needed
 
     networks:
       - name: proxy
@@ -22,7 +22,11 @@
       traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
       traefik.http.routers.portainer.entrypoints: "websecure"
       traefik.http.routers.portainer.tls.certresolver: "cloudflare"
-      traefik.http.services.portainer.loadbalancer.server.port: "9443"
+
+      # Explicit service definition: force HTTP backend on 9000
+      traefik.http.services.portainer.loadbalancer.server.port: "9000"
+      traefik.http.services.portainer.loadbalancer.server.scheme: "http"
+      traefik.docker.network: "proxy"
 
       # HTTP router with redirect middleware
       traefik.http.routers.portainer-http.rule: "Host(`portainer.pearsalls.online`)"
