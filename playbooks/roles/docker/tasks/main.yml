@@ -22,15 +22,18 @@
     mode: '0644'
 
 - name: Add Docker apt repository (Debian 13 Trixie)
-  ansible.builtin.apt_repository:
+  apt_repository:
     repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian trixie stable"
     state: present
     filename: docker
 
-- name: Install Docker packages
+- name: Install latest Docker packages
   apt:
-    name: "{{ docker_packages }}"
-    state: present
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
     update_cache: yes
 
 - name: Ensure docker group exists
