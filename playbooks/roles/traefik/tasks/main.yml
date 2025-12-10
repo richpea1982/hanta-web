@@ -31,26 +31,6 @@
     group: root
     mode: '0600'
 
-# 🔑 This guarantees the env file is rendered from vault variables
-- name: Deploy Cloudflare environment file from vault
-  template:
-    src: traefik_env_file.j2
-    dest: /opt/traefik/traefik_env_file
-    owner: root
-    group: root
-    mode: '0600'
-
-# ✅ Explicit check before container start
-- name: Verify env file exists before starting container
-  stat:
-    path: /opt/traefik/traefik_env_file
-  register: envfile
-
-- name: Fail if env file missing
-  fail:
-    msg: "traefik_env_file is missing on host"
-  when: not envfile.stat.exists
-
 - name: Run Traefik as a Docker container
   community.docker.docker_container:
     name: traefik
@@ -64,7 +44,7 @@
       - /opt/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - /opt/traefik/dynamic.yml:/opt/traefik/dynamic.yml:ro
       - /opt/traefik/acme.json:/etc/traefik/acme.json
-    env_file:
-      - /opt/traefik/traefik_env_file
+    env:
+      CLOUDFLARE_DNS_API_TOKEN: "{{ vault_cloudflare_api_token }}"
     networks:
       - name: proxy
