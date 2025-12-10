@@ -41,33 +41,33 @@
     group: root
     mode: '0755'
 
-- name: Run Cloudflared container
+# Step 1: Create tunnel with a one-time init container
+- name: Create Cloudflare tunnel (one-time)
   community.docker.docker_container:
-    name: cloudflared
+    name: cloudflared-init
     image: cloudflare/cloudflared:latest
-    restart_policy: unless-stopped
-    command: tunnel --no-autoupdate
+    command: tunnel create {{ cloudflared_tunnel_name }}
     volumes:
       - "{{ cloudflared_config_dir }}:/etc/cloudflared"
     networks:
       - name: "{{ traefik_network }}"
     user: "{{ cloudflared_user }}"
+    state: started
 
-- name: Create Cloudflare tunnel
-  community.docker.docker_container_exec:
-    container: cloudflared
-    command: >
-      cloudflared tunnel create {{ cloudflared_tunnel_name }}
+- name: Remove init container
+  community.docker.docker_container:
+    name: cloudflared-init
+    state: absent
 
-- name: Route DNS for each hostname
-  loop: "{{ cloudflared_hostnames }}"
-  community.docker.docker_container_exec:
-    container: cloudflared
-    command: >
-      cloudflared tunnel route dns {{ cloudflared_tunnel_name }} {{ item }}
-
-- name: Start tunnel
-  community.docker.docker_container_exec:
-    container: cloudflared
-    command: >
-      cloudflared tunnel run {{ cloudflared_tunnel_name }}
+# Step 2: Run the persistent tunnel container
+- name: Run Cloudflared tunnel
+  community.docker.docker_container:
+    name: cloudflared
+    image: cloudflare/cloudflared:latest
+    restart_policy: unless-stopped
+    command: tunnel run {{ cloudflared_tunnel_name }}
+    volumes:
+      - "{{ cloudflared_config_dir }}:/etc/cloudflared"
+    networks:
+      - name: "{{ traefik_network }}"
+    user: "{{ cloudflared_user }}"
