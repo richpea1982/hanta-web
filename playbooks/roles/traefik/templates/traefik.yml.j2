@@ -1,4 +1,5 @@
-# traefik.yml (static configuration)
+# Traefik v3.0 static configuration
+
 entryPoints:
   web:
     address: ":80"
@@ -14,6 +15,15 @@ providers:
   file:
     filename: /etc/traefik/dynamic.yml
     watch: true
+
+api:
+  dashboard: true
+  insecure: false
+
+log:
+  level: INFO
+
+accessLog: {}
 
 certificatesResolvers:
   cloudflare:
