@@ -16,6 +16,14 @@ http:
       tls:
         certResolver: cloudflare
 
+    portainer-http:
+      rule: "Host(`portainer.pearsalls.online`)"
+      entryPoints:
+        - web
+      service: portainer
+      middlewares:
+        - redirect-to-https
+
   services:
     portainer:
       loadBalancer:
