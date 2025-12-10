@@ -1,10 +1,26 @@
 http:
   routers:
     traefik-dashboard:
-      rule: "Host(`proxy.{{ traefik_domain }}`)"
+      rule: "Host(`proxy.pearsalls.online`)"
       service: "api@internal"
       entryPoints:
         - websecure
+      tls:
+        certResolver: cloudflare
+
+    portainer:
+      rule: "Host(`portainer.pearsalls.online`)"
+      entryPoints:
+        - websecure
+      service: portainer
+      tls:
+        certResolver: cloudflare
+
+  services:
+    portainer:
+      loadBalancer:
+        servers:
+          - url: "http://portainer:9000"
 
   middlewares:
     redirect-to-https:
