@@ -1,7 +1,9 @@
-tunnel: {{ cloudflared_tunnel_id }}
-credentials-file: /etc/cloudflared/{{ cloudflared_tunnel_id }}.json
+tunnel: f77ee1ff-0c1d-4883-a922-4800456af1c5
+credentials-file: /etc/cloudflared/f77ee1ff-0c1d-4883-a922-4800456af1c5.json
 
 ingress:
   - hostname: portainer.pearsalls.online
-    service: http://traefik:80
+    service: http://traefik:443
+  - hostname: traefik.pearsalls.online
+    service: http://traefik:8080
   - service: http_status:404
