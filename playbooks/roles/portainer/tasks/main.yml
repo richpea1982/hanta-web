@@ -5,33 +5,28 @@
     pull: true
     state: started
     restart_policy: unless-stopped
-    recreate: true          # force container recreation
-    force_kill: true        # kill old container if needed
+    recreate: true
+    force_kill: true
 
     networks:
       - name: proxy
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+
     env:
       PORTAINER_ADMINMONITOR_DISABLE: "true"
+
     labels:
       traefik.enable: "true"
-
-      # HTTPS router (Traefik terminates TLS)
       traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
       traefik.http.routers.portainer.entrypoints: "websecure"
       traefik.http.routers.portainer.tls.certresolver: "cloudflare"
-
-      # Explicit service definition: force HTTP backend on 9000
       traefik.http.services.portainer.loadbalancer.server.port: "9000"
       traefik.http.services.portainer.loadbalancer.server.scheme: "http"
       traefik.docker.network: "proxy"
-
-      # HTTP router with redirect middleware
       traefik.http.routers.portainer-http.rule: "Host(`portainer.pearsalls.online`)"
       traefik.http.routers.portainer-http.entrypoints: "web"
       traefik.http.routers.portainer-http.middlewares: "redirect-to-https"
-
-      # Middleware definition
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
