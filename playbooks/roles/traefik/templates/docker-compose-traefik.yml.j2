@@ -15,7 +15,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - {{ traefik_network }}
+      - proxy   # <-- add this line
 
 networks:
   {{ traefik_network }}:
+    external: true
+  proxy:
     external: true
