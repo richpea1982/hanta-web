@@ -47,6 +47,8 @@
     recreate: true
     force_kill: true
 
+  user: "0:0"
+
     networks_cli_compatible: true
     networks:
       - name: proxy
