@@ -39,6 +39,16 @@
     group: root
     mode: '0600'
 
+- name: Verify env file exists before starting container
+  stat:
+    path: /opt/traefik/traefik_env_file
+  register: envfile
+
+- name: Fail if env file missing
+  fail:
+    msg: "traefik_env_file is missing on host"
+  when: not envfile.stat.exists
+
 - name: Run Traefik as a Docker container
   community.docker.docker_container:
     name: traefik
