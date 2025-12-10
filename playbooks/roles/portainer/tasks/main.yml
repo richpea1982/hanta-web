@@ -15,6 +15,7 @@
       PORTAINER_ADMINMONITOR_DISABLE: "true"
     labels:
       traefik.enable: "true"
+      force_kill: true
 
       # HTTPS router (Traefik terminates TLS)
       traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
