@@ -6,23 +6,16 @@ entryPoints:
 
 providers:
   docker:
-    endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
   file:
-    filename: /dynamic.yml
-
-api:
-  dashboard: true
-  insecure: false
-
-log:
-  level: DEBUG
+    filename: /opt/traefik/dynamic.yml
+    watch: true
 
 certificatesResolvers:
   cloudflare:
     acme:
-      email: {{ traefik_email }}
-      storage: {{ traefik_acme_storage }}
+      email: rpearsall1982@gmail.com
+      storage: /etc/traefik/acme.json
       dnsChallenge:
         provider: cloudflare
         resolvers:
