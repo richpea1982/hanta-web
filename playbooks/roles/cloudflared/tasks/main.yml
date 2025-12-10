@@ -39,6 +39,13 @@
     group: root
     mode: '0644'
 
+- name: Ensure credentials file is readable by container user
+  file:
+    path: "{{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json"
+    mode: '0644'
+    owner: root
+    group: root
+
 - name: Run Cloudflared as a Docker container
   community.docker.docker_container:
     name: cloudflared
@@ -49,3 +56,5 @@
       - "{{ cloudflared_config_dir }}:/etc/cloudflared"
     networks:
       - name: "{{ traefik_network }}"
+    # fallback safeguard: run as root if non-root fails
+    user: "{{ cloudflared_user | default('65532') }}"
