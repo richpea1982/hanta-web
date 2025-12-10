@@ -31,6 +31,7 @@
     group: root
     mode: '0600'
 
+# 🔑 This guarantees the env file is rendered from vault variables
 - name: Deploy Cloudflare environment file from vault
   template:
     src: traefik_env_file.j2
@@ -39,6 +40,7 @@
     group: root
     mode: '0600'
 
+# ✅ Explicit check before container start
 - name: Verify env file exists before starting container
   stat:
     path: /opt/traefik/traefik_env_file
