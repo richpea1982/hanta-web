@@ -1,4 +1,10 @@
 ---
+- name: Ensure proxy network exists
+  community.docker.docker_network:
+    name: proxy
+    driver: bridge
+    state: present
+
 - name: Ensure Traefik config directory exists
   file:
     path: /opt/traefik
