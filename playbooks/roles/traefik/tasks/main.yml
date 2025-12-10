@@ -50,6 +50,7 @@
 
     command:
       - --configFile=/etc/traefik/traefik.yml
+      - --providers.docker=true
 
     networks_cli_compatible: true
     networks:

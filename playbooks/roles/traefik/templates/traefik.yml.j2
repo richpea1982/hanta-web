@@ -1,4 +1,4 @@
-# Traefik v3.0 static configuration
+# Traefik v3.1 static configuration
 
 entryPoints:
   web:
@@ -11,6 +11,7 @@ providers:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
     network: proxy
+    watch: true
 
   file:
     filename: /etc/traefik/dynamic.yml
