@@ -71,3 +71,17 @@
     networks:
       - name: "{{ traefik_network }}"
     user: "{{ cloudflared_user }}"
+
+- name: Create DNS record for Portainer
+  uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone_id }}/dns_records"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ vault_cloudflare_api_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      type: CNAME
+      name: "portainer.pearsalls.online"
+      content: "f77ee1ff-0c1d-4883-a922-4800456af1c5.cfargotunnel.com"
+      proxied: true
