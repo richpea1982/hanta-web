@@ -11,10 +11,14 @@ providers:
     filename: /opt/traefik/dynamic.yml
     watch: true
 
+api:
+  dashboard: true
+  insecure: false   # 👈 ensures dashboard is only reachable via defined router
+
 certificatesResolvers:
   cloudflare:
     acme:
-      email: {{ traefik_acme_email }}
+      email: rpearsall1982@gmail.com
       storage: /etc/traefik/acme.json
       dnsChallenge:
         provider: cloudflare
