@@ -12,6 +12,7 @@ traefik_acme_storage: /etc/traefik/acme.json
 traefik_env_file: /etc/traefik/cloudflare.env
 traefik_network: proxy
 traefik_domain: pearsalls.online
+traefik_acme_email: rpearsall1982@gmail.com
 
 # Cloudflared variables
 cloudflared_tunnel_name: hanta-web
