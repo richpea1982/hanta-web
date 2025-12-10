@@ -1,7 +1,7 @@
 - name: Deploy Portainer container
   community.docker.docker_container:
     name: portainer
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:2.9.3
     pull: true
     state: started
     restart_policy: unless-stopped

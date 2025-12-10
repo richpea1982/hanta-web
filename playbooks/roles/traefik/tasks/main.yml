@@ -34,7 +34,7 @@
 - name: Run Traefik as a Docker container
   community.docker.docker_container:
     name: traefik
-    image: traefik:v2.10
+    image: traefik:v2.5
     restart_policy: unless-stopped
     ports:
       - "80:80"
