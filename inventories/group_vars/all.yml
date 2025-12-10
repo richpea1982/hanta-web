@@ -19,5 +19,6 @@ cloudflared_config_dir: /etc/cloudflared
 
 cloudflared_ingress:
   - hostname: portainer.pearsalls.online
-    service: http://localhost:9000
-
+    service: http://traefik:80
+  - hostname: proxy.pearsalls.online
+    service: http://traefik:80
