@@ -37,20 +37,33 @@
     group: root
     mode: '0600'
 
-- name: Run Traefik as a Docker container
+- name: Deploy Traefik container
   community.docker.docker_container:
     name: traefik
-    image: traefik:v2.5
+    image: traefik:v3.0
+    pull: true
+    state: started
     restart_policy: unless-stopped
+    recreate: true
+    force_kill: true
+
+    networks_cli_compatible: true
+    networks:
+      - name: proxy
+
     ports:
       - "80:80"
       - "443:443"
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /opt/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - /opt/traefik/dynamic.yml:/opt/traefik/dynamic.yml:ro
-      - /opt/traefik/acme.json:/etc/traefik/acme.json
-    env:
-      CLOUDFLARE_DNS_API_TOKEN: "{{ vault_cloudflare_api_token }}"
-    networks:
-      - name: proxy
+      - /opt/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - /opt/traefik/acme.json:/acme.json
+
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.dashboard.rule: "Host(`proxy.pearsalls.online`)"
+      traefik.http.routers.dashboard.entrypoints: "websecure"
+      traefik.http.routers.dashboard.tls.certresolver: "cloudflare"
+      traefik.http.services.dashboard.loadbalancer.server.port: "8080"
