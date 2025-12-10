@@ -31,9 +31,9 @@
     group: root
     mode: '0600'
 
-- name: Deploy Cloudflare environment file
-  copy:
-    src: traefik_env_file
+- name: Deploy Cloudflare environment file from vault
+  template:
+    src: traefik_env_file.j2
     dest: /opt/traefik/traefik_env_file
     owner: root
     group: root
