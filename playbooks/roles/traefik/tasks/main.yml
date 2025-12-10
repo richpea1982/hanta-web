@@ -1,67 +1,58 @@
 ---
-- name: Ensure Traefik network exists
-  community.docker.docker_network:
-    name: "{{ traefik_network }}"
-    state: present
-
-- name: Create Traefik directory
+- name: Ensure Traefik config directory exists
   file:
     path: /opt/traefik
     state: directory
     owner: root
     group: root
-    mode: "0755"
+    mode: '0755'
 
-- name: Deploy traefik.yml
+- name: Deploy static Traefik config
   template:
     src: traefik.yml.j2
     dest: /opt/traefik/traefik.yml
     owner: root
     group: root
-    mode: "0644"
+    mode: '0644'
 
-- name: Deploy dynamic.yml
+- name: Deploy dynamic Traefik config
   template:
     src: dynamic.yml.j2
     dest: /opt/traefik/dynamic.yml
     owner: root
     group: root
-    mode: "0644"
+    mode: '0644'
 
-- name: Deploy docker-compose.yml
-  template:
-    src: docker-compose-traefik.yml.j2
-    dest: /opt/traefik/docker-compose.yml
-    owner: root
-    group: root
-    mode: "0644"
-
-- name: Ensure Traefik acme directory exists
+- name: Ensure acme.json exists with correct permissions
   file:
-    path: /etc/traefik
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-
-- name: Ensure acme.json exists
-  file:
-    path: "{{ traefik_acme_storage }}"
+    path: /opt/traefik/acme.json
     state: touch
     owner: root
     group: root
-    mode: "0600"
+    mode: '0600'
 
-- name: Deploy Cloudflare env file
+- name: Deploy Cloudflare environment file
   copy:
-    dest: "{{ traefik_env_file }}"
-    content: |
-      CLOUDFLARE_DNS_API_TOKEN={{ vault_cloudflare_api_token }}
+    src: traefik_env_file
+    dest: /opt/traefik/traefik_env_file
     owner: root
     group: root
-    mode: "0600"
+    mode: '0600'
 
-- name: Start Traefik with Docker Compose
-  command: docker compose up -d
-  args:
-    chdir: /opt/traefik
+- name: Run Traefik as a Docker container
+  community.docker.docker_container:
+    name: traefik
+    image: traefik:v3.0
+    restart_policy: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - /opt/traefik/dynamic.yml:/opt/traefik/dynamic.yml:ro
+      - /opt/traefik/acme.json:/etc/traefik/acme.json
+    env_file:
+      - /opt/traefik/traefik_env_file
+    networks:
+      - name: proxy
