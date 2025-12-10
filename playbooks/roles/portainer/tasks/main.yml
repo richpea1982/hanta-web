@@ -5,12 +5,13 @@
     pull: true
     state: started
     restart_policy: unless-stopped
+    recreate: true        # <-- force container recreation
     networks:
       - name: proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-    environment:
+    env:
       PORTAINER_ADMINMONITOR_DISABLE: "true"
     labels:
       traefik.enable: "true"
