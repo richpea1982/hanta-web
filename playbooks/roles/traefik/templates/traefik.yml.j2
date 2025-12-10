@@ -1,4 +1,15 @@
-# Traefik v3.1 static configuration
+# Static Traefik configuration (v3)
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: INFO
+
+accessLog: {}
+
+api:
+  dashboard: true
 
 entryPoints:
   web:
@@ -10,26 +21,19 @@ providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
-    network: proxy
-    watch: true
-
+    network: "{{ traefik_network }}"
   file:
-    filename: /etc/traefik/dynamic.yml
+    filename: "/etc/traefik/dynamic.yml"
     watch: true
-
-api:
-  dashboard: true
-  insecure: false
-
-log:
-  level: INFO
-
-accessLog: {}
 
 certificatesResolvers:
-  cloudflare:
+  cf:
     acme:
-      email: admin@pearsalls.online
-      storage: /acme.json
+      email: "{{ traefik_acme_email }}"
+      storage: "{{ traefik_acme_storage }}"
       dnsChallenge:
         provider: cloudflare
+        # Traefik reads CLOUDFLARE_API_TOKEN from the environment file you mounted
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"

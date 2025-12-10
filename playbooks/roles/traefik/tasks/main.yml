@@ -1,7 +1,7 @@
 ---
 - name: Ensure proxy network exists
   community.docker.docker_network:
-    name: proxy
+    name: "{{ traefik_network }}"
     driver: bridge
     state: present
 
@@ -31,11 +31,21 @@
 
 - name: Ensure acme.json exists with correct permissions
   file:
-    path: /opt/traefik/acme.json
+    path: "{{ traefik_acme_storage }}"
     state: touch
     owner: root
     group: root
     mode: '0600'
+
+- name: Ensure Cloudflare env file exists (token can be managed via vault or set manually)
+  copy:
+    dest: "{{ traefik_env_file }}"
+    content: |
+      CLOUDFLARE_DNS_API_TOKEN={{ vault_cloudflare_api_token }}
+    owner: root
+    group: root
+    mode: '0600'
+    force: no
 
 - name: Deploy Traefik container
   community.docker.docker_container:
@@ -47,21 +57,17 @@
     recreate: true
     force_kill: true
     user: "0:0"
-
     command:
       - --configFile=/etc/traefik/traefik.yml
-      - --providers.docker=true
-
     networks_cli_compatible: true
     networks:
-      - name: proxy
-
+      - name: "{{ traefik_network }}"
     ports:
       - "80:80"
       - "443:443"
-
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /opt/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - /opt/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
-      - /opt/traefik/acme.json:/acme.json
+      - "{{ traefik_acme_storage }}:{{ traefik_acme_storage }}"
+      - "{{ traefik_env_file }}:{{ traefik_env_file }}"

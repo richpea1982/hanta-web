@@ -1,36 +1,47 @@
+# Dynamic Traefik configuration (routers, middlewares)
+
 http:
-  routers:
-    traefik-dashboard:
-      rule: "Host(`proxy.pearsalls.online`)"
-      service: "api@internal"
-      entryPoints:
-        - websecure
-      tls:
-        certResolver: cloudflare
-
-    portainer:
-      rule: "Host(`portainer.pearsalls.online`)"
-      entryPoints:
-        - websecure
-      service: portainer
-      tls:
-        certResolver: cloudflare
-
-    portainer-http:
-      rule: "Host(`portainer.pearsalls.online`)"
-      entryPoints:
-        - web
-      service: portainer
-      middlewares:
-        - redirect-to-https
-
-  services:
-    portainer:
-      loadBalancer:
-        servers:
-          - url: "http://portainer:9000"
-
   middlewares:
     redirect-to-https:
       redirectScheme:
         scheme: https
+        permanent: true
+
+    security-headers:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+        frameDeny: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+
+  routers:
+    # Redirect all HTTP traffic to HTTPS
+    redirect-web:
+      rule: "HostRegexp(`{any:.+}`)"
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+      service: noop
+
+    # Traefik dashboard at traefik.pearsalls.online
+    traefik-dashboard:
+      rule: "Host(`traefik.pearsalls.online`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: cf
+      service: api@internal
+      middlewares:
+        - security-headers
+
+  services:
+    # Noop service needed for HTTP redirect router
+    noop:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1"
+        passHostHeader: false

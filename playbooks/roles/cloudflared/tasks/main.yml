@@ -1,4 +1,21 @@
 ---
+# Ensure networks exist
+- name: Ensure proxy network exists
+  community.docker.docker_network:
+    name: "{{ traefik_network }}"
+    state: present
+
+- name: Ensure backend network exists
+  community.docker.docker_network:
+    name: "{{ backend_network }}"
+    state: present
+
+- name: Ensure monitoring network exists
+  community.docker.docker_network:
+    name: "{{ monitoring_network }}"
+    state: present
+
+# Disable IPv6 system-wide
 - name: Disable IPv6 system-wide
   sysctl:
     name: net.ipv6.conf.all.disable_ipv6
@@ -15,6 +32,7 @@
     sysctl_set: yes
     reload: yes
 
+# Cloudflared setup
 - name: Ensure cloudflared config directory exists
   file:
     path: "{{ cloudflared_config_dir }}"
@@ -23,38 +41,33 @@
     group: root
     mode: '0755'
 
-- name: Deploy cloudflared config.yml
-  template:
-    src: cloudflared-config.yml.j2
-    dest: "{{ cloudflared_config_dir }}/config.yml"
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Deploy cloudflared tunnel credentials
-  copy:
-    dest: "{{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json"
-    content: "{{ vault_cloudflared_credentials | to_nice_json }}"
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Ensure credentials file is readable by container user
-  file:
-    path: "{{ cloudflared_config_dir }}/{{ cloudflared_tunnel_id }}.json"
-    mode: '0644'
-    owner: root
-    group: root
-
-- name: Run Cloudflared as a Docker container
+- name: Run Cloudflared container
   community.docker.docker_container:
     name: cloudflared
     image: cloudflare/cloudflared:latest
     restart_policy: unless-stopped
-    command: tunnel run {{ cloudflared_tunnel_id }}
+    command: tunnel --no-autoupdate
     volumes:
       - "{{ cloudflared_config_dir }}:/etc/cloudflared"
     networks:
       - name: "{{ traefik_network }}"
-    # fallback safeguard: run as root if non-root fails
-    user: "{{ cloudflared_user | default('65532') }}"
+    user: "{{ cloudflared_user }}"
+
+- name: Create Cloudflare tunnel
+  community.docker.docker_container_exec:
+    container: cloudflared
+    command: >
+      cloudflared tunnel create {{ cloudflared_tunnel_name }}
+
+- name: Route DNS for each hostname
+  loop: "{{ cloudflared_hostnames }}"
+  community.docker.docker_container_exec:
+    container: cloudflared
+    command: >
+      cloudflared tunnel route dns {{ cloudflared_tunnel_name }} {{ item }}
+
+- name: Start tunnel
+  community.docker.docker_container_exec:
+    container: cloudflared
+    command: >
+      cloudflared tunnel run {{ cloudflared_tunnel_name }}

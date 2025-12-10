@@ -1,0 +1,25 @@
+# Tunnel name (used in CLI commands)
+cloudflared_tunnel_name: "hanta-web"
+
+# Config directory inside the host
+cloudflared_config_dir: "/etc/cloudflared"
+
+# Docker network for Traefik/Cloudflared
+traefik_network: "proxy"
+
+# User ID to run cloudflared (default non-root user in container is 65532)
+cloudflared_user: "65532"
+
+# Subdomains to register with the tunnel
+cloudflared_hostnames:
+  - "portainer.pearsalls.online"
+  - "traefik.pearsalls.online"
+  - "prometheus.pearsalls.online"
+  - "proweb.pearsalls.online"
+  - "web2.pearsalls.online"
+  - "ssh.pearsalls.online"
+
+# Optional: backend and monitoring networks for other services
+backend_network: "backend"
+monitoring_network: "monitoring"
+
