@@ -16,17 +16,16 @@
     labels:
       traefik.enable: "true"
 
-      # HTTPS router
+      # HTTPS router (Traefik terminates TLS)
       traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
       traefik.http.routers.portainer.entrypoints: "websecure"
       traefik.http.routers.portainer.tls.certresolver: "cloudflare"
-      traefik.http.services.portainer.loadbalancer.server.port: "9443"
-      traefik.http.services.portainer.loadbalancer.server.scheme: "https"
+      traefik.http.services.portainer.loadbalancer.server.port: "9000"
 
       # HTTP router with redirect middleware
       traefik.http.routers.portainer-http.rule: "Host(`portainer.pearsalls.online`)"
       traefik.http.routers.portainer-http.entrypoints: "web"
       traefik.http.routers.portainer-http.middlewares: "redirect-to-https"
 
-      # Define middleware inline (Docker provider namespace)
+      # Middleware definition
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
