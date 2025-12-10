@@ -20,7 +20,7 @@
       traefik.http.routers.portainer.rule: "Host(`portainer.pearsalls.online`)"
       traefik.http.routers.portainer.entrypoints: "websecure"
       traefik.http.routers.portainer.tls.certresolver: "cloudflare"
-      traefik.http.services.portainer.loadbalancer.server.port: "9000"
+      traefik.http.services.portainer.loadbalancer.server.port: "9443"
 
       # HTTP router with redirect middleware
       traefik.http.routers.portainer-http.rule: "Host(`portainer.pearsalls.online`)"
