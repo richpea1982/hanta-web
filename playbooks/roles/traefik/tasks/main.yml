@@ -40,14 +40,16 @@
 - name: Deploy Traefik container
   community.docker.docker_container:
     name: traefik
-    image: traefik:v3.1
+    image: traefik:v3.1.7
     pull: true
     state: started
     restart_policy: unless-stopped
     recreate: true
     force_kill: true
-
     user: "0:0"
+
+    command:
+      - --configFile=/etc/traefik/traefik.yml
 
     networks_cli_compatible: true
     networks:
@@ -62,10 +64,3 @@
       - /opt/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - /opt/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
       - /opt/traefik/acme.json:/acme.json
-
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.dashboard.rule: "Host(`proxy.pearsalls.online`)"
-      traefik.http.routers.dashboard.entrypoints: "websecure"
-      traefik.http.routers.dashboard.tls.certresolver: "cloudflare"
-      traefik.http.services.dashboard.loadbalancer.server.port: "8080"
