@@ -1,39 +1,39 @@
-# Static Traefik configuration (v3)
-global:
-  checkNewVersion: false
-  sendAnonymousUsage: false
-
-log:
-  level: INFO
-
-accessLog: {}
-
+## /opt/traefik/traefik.yml
 api:
   dashboard: true
+  insecure: false
+
+log:
+  level: DEBUG
+
+accessLog: {}
 
 entryPoints:
   web:
     address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
   websecure:
     address: ":443"
 
 providers:
   docker:
-    endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
-    network: "{{ traefik_network }}"
   file:
-    filename: "/etc/traefik/dynamic.yml"
+    filename: /opt/traefik/dynamic.yml
     watch: true
 
 certificatesResolvers:
-  cf:
+  cloudflare:
     acme:
-      email: "{{ traefik_acme_email }}"
-      storage: "{{ traefik_acme_storage }}"
+      email: rpearsall1982@gmail.com
+      storage: /etc/traefik/acme.json
       dnsChallenge:
         provider: cloudflare
-        # Traefik reads CLOUDFLARE_API_TOKEN from the environment file you mounted
-        resolvers:
-          - "1.1.1.1:53"
-          - "1.0.0.1:53"
+        delayBeforeCheck: 0
+

@@ -10,9 +10,9 @@ docker_packages:
 traefik_email: rpearsall1982@gmail.com
 traefik_acme_storage: /etc/traefik/acme.json
 traefik_env_file: /etc/traefik/cloudflare.env
-traefik_network: proxy
+network_frontend: frontend
+network_backend: backend
 traefik_domain: pearsalls.online
-traefik_acme_email: rpearsall1982@gmail.com
 
 # Cloudflared variables
 cloudflared_tunnel_name: hanta-web
@@ -20,6 +20,6 @@ cloudflared_config_dir: /etc/cloudflared
 
 cloudflared_ingress:
   - hostname: portainer.pearsalls.online
-    service: http://traefik:80
-  - hostname: proxy.pearsalls.online
-    service: http://traefik:80
+    service: https://traefik:443
+  - hostname: traefik.pearsalls.online
+    service: https://traefik:443

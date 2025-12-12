@@ -1,73 +1,59 @@
----
-- name: Ensure proxy network exists
-  community.docker.docker_network:
-    name: "{{ traefik_network }}"
-    driver: bridge
-    state: present
+# roles/traefik/tasks/main.yml
 
-- name: Ensure Traefik config directory exists
+- name: Ensure traefik directories exist
   file:
-    path: /opt/traefik
+    path: "{{ item }}"
     state: directory
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
+  loop:
+    - /opt/traefik
+    - /etc/traefik
 
-- name: Deploy static Traefik config
+- name: Ensure acme.json exists
+  copy:
+    content: ""
+    dest: /etc/traefik/acme.json
+    owner: root
+    group: root
+    mode: "0600"
+    force: no
+
+- name: Deploy traefik.yml
   template:
     src: traefik.yml.j2
     dest: /opt/traefik/traefik.yml
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
 
-- name: Deploy dynamic Traefik config
+- name: Deploy dynamic.yml
   template:
     src: dynamic.yml.j2
     dest: /opt/traefik/dynamic.yml
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
 
-- name: Ensure acme.json exists with correct permissions
-  file:
-    path: "{{ traefik_acme_storage }}"
-    state: touch
+- name: Deploy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/traefik/docker-compose.yml
     owner: root
     group: root
-    mode: '0600'
+    mode: "0644"
 
-- name: Ensure Cloudflare env file exists (token can be managed via vault or set manually)
-  copy:
-    dest: "{{ traefik_env_file }}"
-    content: |
-      CLOUDFLARE_DNS_API_TOKEN={{ vault_cloudflare_api_token }}
+- name: Deploy Cloudflare env file
+  template:
+    src: cloudflare.env.j2
+    dest: /etc/traefik/cloudflare.env
     owner: root
     group: root
-    mode: '0600'
-    force: no
+    mode: "0600"
 
-- name: Deploy Traefik container
-  community.docker.docker_container:
-    name: traefik
-    image: traefik:v3.6.1
-    pull: true
-    state: started
-    restart_policy: unless-stopped
-    recreate: true
-    force_kill: true
-    user: "0:0"
-    command:
-      - --configFile=/etc/traefik/traefik.yml
-    networks_cli_compatible: true
-    networks:
-      - name: "{{ traefik_network }}"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /opt/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - /opt/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
-      - "{{ traefik_acme_storage }}:{{ traefik_acme_storage }}"
-      - "{{ traefik_env_file }}:{{ traefik_env_file }}"
+- name: Start Traefik
+  command: docker compose up -d
+  args:
+    chdir: /opt/traefik
+
