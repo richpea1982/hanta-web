@@ -1,0 +1,48 @@
+---
+- name: Test connection and gather basic server info
+  hosts: remote_servers
+  gather_facts: yes
+  become: yes
+
+  tasks:
+
+    - name: Ping the server
+      ansible.builtin.ping:
+
+    - name: Show hostname
+      ansible.builtin.command: hostname
+      register: hostname_out
+
+    - name: Show uptime
+      ansible.builtin.command: uptime -p
+      register: uptime_out
+
+    - name: Show CPU and memory summary
+      ansible.builtin.command: free -h
+      register: free_out
+
+    - name: Show disk usage
+      ansible.builtin.command: df -h /
+      register: disk_out
+
+    - name: Show running Docker containers
+      ansible.builtin.command: docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+      register: docker_ps_out
+
+    - name: Print results
+      ansible.builtin.debug:
+        msg: |
+          Hostname:
+          {{ hostname_out.stdout }}
+
+          Uptime:
+          {{ uptime_out.stdout }}
+
+          Memory:
+          {{ free_out.stdout }}
+
+          Disk:
+          {{ disk_out.stdout }}
+
+          Docker Containers:
+          {{ docker_ps_out.stdout }}
