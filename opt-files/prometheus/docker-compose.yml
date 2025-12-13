@@ -1,0 +1,30 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /opt/prometheus/data:/prometheus
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+
+      # Router
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.pearsalls.online`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls.certresolver=cloudflare"
+
+      # Service
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+      # 🔐 Basic Auth Middleware
+      - "traefik.http.middlewares.prometheus-auth.basicauth.users=${PROM_USER}:${PROM_PASS}"
+
+      # Attach middleware to router
+      - "traefik.http.routers.prometheus.middlewares=prometheus-auth"
+
+networks:
+  frontend:
+    external: true

@@ -1,7 +1,0 @@
-- name: Deploy Traefik reverse proxy
-  hosts: all
-  become: true
-  vars_files:
-    - ../vault/secrets.yml
-  roles:
-    - traefik

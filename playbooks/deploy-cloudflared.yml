@@ -1,7 +1,0 @@
-- name: Deploy Cloudflared tunnel
-  hosts: all
-  become: true
-  vars_files:
-    - ../vault/secrets.yml
-  roles:
-    - cloudflared

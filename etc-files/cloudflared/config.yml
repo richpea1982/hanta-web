@@ -1,0 +1,21 @@
+tunnel: 880fc3ef-e148-4fb7-b978-8145cc1316ec
+credentials-file: /etc/cloudflared/880fc3ef-e148-4fb7-b978-8145cc1316ec.json
+
+ingress:
+  - hostname: traefik.pearsalls.online
+    service: https://traefik:443
+    originRequest:
+      noTLSVerify: true
+
+  - hostname: portainer.pearsalls.online
+    service: https://traefik:443
+    originRequest:
+      noTLSVerify: true
+
+  - hostname: prometheus.pearsalls.online
+    service: https://traefik:443
+    originRequest:
+      noTLSVerify: true
+
+  - service: http_status:404
+
